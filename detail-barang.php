@@ -23,10 +23,10 @@ function ambil_satu($conn, $sql, $types = '', ...$params) {
 }
 
 function foto_url($file, $folder = 'uploads/') {
-    if (!empty($file) && file_exists($folder . $file)) {
+    if (!empty($file) && file_exists(__DIR__ . '/' . $folder . $file)) {
         return $folder . $file;
     }
-    return 'https://placehold.co/800x600/e2e8f0/94a3b8?text=Foto+Barang';
+    return 'https://placehold.co/200x200/e2e8f0/94a3b8?text=Foto';
 }
 
 function inisial($nama) {
