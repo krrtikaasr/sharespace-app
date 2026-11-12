@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajukan'])) {
     }
 
     if (empty($error)) {
-        header("Location: ajukan_permintaan.php?id=" . $id_barang . "&berhasil=1");
+        header("Location: ajukan-permintaan.php?id=" . $id_barang . "&berhasil=1");
         exit;
     }
 }
