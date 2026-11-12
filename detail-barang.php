@@ -48,16 +48,17 @@ $milik_sendiri = false;
 $sudah_diminta = false;
 
 $barang = [
-    'id'           => $id_barang,
-    'nama_barang'  => '',
-    'foto'         => '',
-    'jumlah'       => 1,
-    'kondisi'      => '',
-    'lokasi'       => '',
-    'id_pemberi'   => 0,
-    'nama_pemberi' => '',
-    'jarak'        => '',
+    'id'            => $id_barang,
+    'nama_barang'   => 'Lampu Belajar Kayu',
+    'foto'          => 'meja-belajar.png',
+    'jumlah'        => 1,
+    'kondisi'       => 'Baik',
+    'lokasi'        => 'Denpasar',
+    'id_pemberi'    => 0,
+    'nama_pemberi'  => 'Githa',
+    'jarak'         => '20 Km',
 ];
+
 ?>
 <!DOCTYPE html>
 <html lang="id">

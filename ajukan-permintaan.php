@@ -68,14 +68,14 @@ $id_barang = isset($_GET['id']) ? (int)$_GET['id'] : 1;
 
 $barang = [
     'id'            => $id_barang,
-    'nama_barang'   => '',
-    'foto'          => '',
+    'nama_barang'   => 'Lampu Belajar Kayu',
+    'foto'          => 'meja-belajar.png',
     'jumlah'        => 1,
-    'kondisi'       => '',
-    'lokasi'        => '',
+    'kondisi'       => 'Baik',
+    'lokasi'        => 'Denpasar',
     'id_pemberi'    => 0,
-    'nama_pemberi'  => '',
-    'jarak'         => '',
+    'nama_pemberi'  => 'Githa',
+    'jarak'         => '20 Km',
 ];
 $pemohon = ['nama' => '', 'no_hp' => ''];
 

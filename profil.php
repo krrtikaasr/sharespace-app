@@ -24,14 +24,36 @@ function foto_url($file, $folder = 'uploads/') {
 }
 
 $profil = [
-    'nama' => '',
-    'email' => '',
-    'foto' => '',
-    'lokasi' => ''
+    'nama'   => 'Kiara Anastasia',
+    'email'  => 'kiaraanastasia@gmail.com',
+    'foto'   => 'AI.jpg',
+    'lokasi' => 'Denpasar, Bali',
 ];
 
-$donasi = [];
-$permintaan = [];
+$donasi = [
+    [
+        'id'              => 1,
+        'nama_barang'     => 'Lampu Meja Kayu',
+        'foto'            => 'meja-belajar.png',
+        'created_at'      => '2026-11-02',
+        'total_peminat'   => 2,
+        'total_pending'   => 1,
+        'total_disetujui' => 1,
+    ],
+];
+
+$permintaan = [
+    [
+        'id_permintaan'     => 1,
+        'status_verifikasi' => 'Disetujui',
+        'tanggal_pengajuan' => '2026-11-03',
+        'nama_barang'       => 'Lampu Belajar Kayu',
+        'foto'              => '',
+        'nama_pemberi'      => 'Githa Maharani',
+        'status_pickup'     => 'Menunggu Jemput',
+    ],
+];
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
