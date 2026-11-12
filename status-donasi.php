@@ -1,114 +1,185 @@
 <?php
 session_start();
-require_once 'config/database.php';
+require_once __DIR__ . '/config/pdo.php';
+require_once __DIR__ . '/includes/helpers.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
-    exit;
+// ID pengguna yang sedang login (diisi saat proses login)
+$userId = $_SESSION['user_id'] ?? null;
+
+$donasi    = []; // daftar donasi milik pengguna
+$permintaan = []; // daftar permintaan yang diajukan pengguna
+
+if ($pdo && $userId) {
+    // Tab "Donasi Saya"
+    $stmt = $pdo->prepare(
+        'SELECT id, nama_barang, jumlah, foto, status, created_at
+           FROM donations WHERE user_id = ? ORDER BY created_at DESC'
+    );
+    $stmt->execute([$userId]);
+    $donasi = $stmt->fetchAll();
+
+    // Tab "Permintaan Saya"
+    $stmt = $pdo->prepare(
+        'SELECT r.id, r.status AS status_permintaan, r.created_at,
+                d.nama_barang, d.jumlah, d.foto
+           FROM requests r JOIN donations d ON d.id = r.donation_id
+          WHERE r.requester_id = ? ORDER BY r.created_at DESC'
+    );
+    $stmt->execute([$userId]);
+    $permintaan = $stmt->fetchAll();
 }
 
-$user_id = $_SESSION['user_id'];
+// ===== DATA DUMMY (hapus blok ini kalau database sudah terisi) =====
+$PAKAI_DUMMY = true;
 
-// Proses jika tombol Verifikasi (Terima/Tolak) diklik
-if (isset($_POST['aksi_verifikasi'])) {
-    $id_permintaan = $_POST['id_permintaan'];
-    $status_baru = $_POST['status_verifikasi']; // Disetujui / Ditolak
-    
-    $update = mysqli_query($conn, "UPDATE permintaan SET status_verifikasi = '$status_baru' WHERE id_permintaan = '$id_permintaan'");
-    if ($update) {
-        $sukses = "Status permintaan berhasil diperbarui!";
-    }
+if ($PAKAI_DUMMY && !$donasi) {
+    $donasi = [
+        [
+            'id'          => 1,
+            'nama_barang' => 'Lampu Belajar',
+            'jumlah'      => 4,
+            'foto'        => 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=300&q=80',
+            'status'      => 'pending',
+            'created_at'  => date('Y-m-d H:i:s'),
+        ],
+        [
+            'id'          => 2,
+            'nama_barang' => 'Mainan Kayu',
+            'jumlah'      => 3,
+            'foto'        => 'assets/images/wood.jpg',
+            'status'      => 'verified',
+            'created_at'  => date('Y-m-d H:i:s', strtotime('-4 hours')),
+        ],
+    ];
 }
-
-// Proses jika tombol Jadwalkan Penjemputan diklik
-if (isset($_POST['atur_jadwal'])) {
-    $id_permintaan = $_POST['id_permintaan'];
-    $lokasi = mysqli_real_escape_string($conn, $_POST['lokasi_penjemputan']);
-    $jadwal = $_POST['jadwal_penjemputan'];
-
-    // Masukkan ke tabel penjemputan
-    $query_pickup = "INSERT INTO penjemputan (id_permintaan, lokasi_penjemputan, jadwal_penjemputan, status_pickup) 
-                     VALUES ('$id_permintaan', '$lokasi', '$jadwal', 'Menunggu Jemput')
-                     ON DUPLICATE KEY UPDATE lokasi_penjemputan='$lokasi', jadwal_penjemputan='$jadwal'";
-    mysqli_query($conn, $query_pickup);
-    $sukses = "Jadwal penjemputan berhasil disimpan!";
-}
-
-// Ambil data permintaan masuk untuk barang yang didonasikan oleh user yang sedang login
-$query = "SELECT p.*, i.nama_barang, u.nama AS nama_pencari, u.no_hp 
-          FROM permintaan p 
-          JOIN items i ON p.id_barang = i.id 
-          JOIN users u ON p.id_penerima = u.id 
-          WHERE i.user_id = '$user_id'";
-$result = mysqli_query($conn, $query);
+// ===================================================================
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status & Riwayat Donasi - ShareSpace</title>
+    <title>ShareSpace - Status & Riwayat</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="bg-slate-50 min-h-screen p-6">
-    <div class="max-w-4xl mx-auto">
+<body class="bg-white">
+
+<div class="w-full max-w-[430px] mx-auto bg-white min-h-screen flex flex-col relative">
+
+    <div class="px-5 pt-5 pb-28 flex-1">
+
         <!-- Header -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-slate-800">Status & Riwayat Donasi</h1>
-            <a href="dashboard.php" class="text-blue-600 hover:underline text-sm font-medium">&larr; Kembali ke Dashboard</a>
+        <div class="flex items-center gap-3 mb-4">
+            <a href="javascript:history.back()" aria-label="Kembali"
+               class="w-9 h-9 rounded-full border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 transition">
+                <?= icon('arrow-left', 'w-4 h-4') ?>
+            </a>
+            <h1 class="font-bold text-base text-slate-900">Status & Riwayat</h1>
         </div>
 
-        <?php if (isset($sukses)) { echo "<div class='bg-green-50 text-green-700 p-3 rounded-lg mb-4 text-sm'>$sukses</div>"; } ?>
+        <!-- Tab elips: indikator biru bergeser ke pilihan yang diklik -->
+        <div class="relative flex p-1 rounded-full border border-slate-400 mb-5" role="tablist">
+            <span id="tabIndicator"
+                  class="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-[#2563EB] rounded-full transition-transform duration-300 ease-out"></span>
+            <button type="button" role="tab" data-tab="donasi"
+                    class="tab-btn relative z-10 flex-1 py-2.5 rounded-full text-xs font-medium text-white transition-colors duration-300">
+                Donasi Saya
+            </button>
+            <button type="button" role="tab" data-tab="permintaan"
+                    class="tab-btn relative z-10 flex-1 py-2.5 rounded-full text-xs font-medium text-slate-900 transition-colors duration-300">
+                Permintaan Saya
+            </button>
+        </div>
 
-        <!-- List Permintaan Masuk -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="p-4 border-b border-slate-100 font-semibold text-slate-700">Daftar Permintaan Barang Masuk</div>
-            <div class="divide-y divide-slate-100">
-                <?php if (mysqli_num_rows($result) > 0): ?>
-                    <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                        <div class="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <div>
-                                <h3 class="font-bold text-slate-800"><?= htmlspecialchars($row['nama_barang']); ?></h3>
-                                <p class="text-sm text-slate-600">Diminta oleh: <span class="font-medium text-slate-800"><?= htmlspecialchars($row['nama_pencari']); ?></span> (No HP: <?= htmlspecialchars($row['no_hp']); ?>)</p>
-                                <p class="text-xs text-slate-400 mt-1">Tanggal: <?= $row['tanggal_pengajuan']; ?></p>
-                                
-                                <div class="mt-2">
-                                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold 
-                                        <?= $row['status_verifikasi'] == 'Disetujui' ? 'bg-green-100 text-green-700' : ($row['status_verifikasi'] == 'Ditolak' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'); ?>">
-                                        Status: <?= $row['status_verifikasi']; ?>
-                                    </span>
-                                </div>
-                            </div>
+        <h2 class="font-bold text-xl text-slate-900 mb-3">Status Card</h2>
 
-                            <!-- Aksi / Tombol Verifikasi & Jadwal -->
-                            <div class="flex flex-col gap-2 w-full md:w-auto">
-                                <form action="" method="POST" class="flex gap-2">
-                                    <input type="hidden" name="id_permintaan" value="<?= $row['id_permintaan']; ?>">
-                                    <?php if ($row['status_verifikasi'] == 'Pending'): ?>
-                                        <button type="submit" name="aksi_verifikasi" value="Disetujui" class="bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-green-700">Terima</button>
-                                        <button type="submit" name="aksi_verifikasi" value="Ditolak" class="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-red-600">Tolak</button>
-                                    <?php endif; ?>
-                                </form>
+        <!-- Panel: Donasi Saya -->
+        <section id="panel-donasi" class="space-y-3">
+            <?php if (!$donasi): ?>
+                <p class="text-xs text-slate-400 text-center py-8">Belum ada donasi. Mulai berbagi lewat menu Bagikan.</p>
+            <?php endif; ?>
 
-                                <!-- Form Jadwal Penjemputan (Muncul jika disetujui) -->
-                                <?php if ($row['status_verifikasi'] == 'Disetujui'): ?>
-                                    <form action="" method="POST" class="bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2 space-y-2">
-                                        <input type="hidden" name="id_permintaan" value="<?= $row['id_permintaan']; ?>">
-                                        <p class="text-xs font-semibold text-slate-700">Atur Jadwal Penjemputan:</p>
-                                        <input type="text" name="lokasi_penjemputan" placeholder="Lokasi jemput/alamat" required class="w-full p-1.5 text-xs border rounded">
-                                        <input type="datetime-local" name="jadwal_penjemputan" required class="w-full p-1.5 text-xs border rounded">
-                                        <button type="submit" name="atur_jadwal" class="w-full bg-blue-600 text-white py-1.5 rounded text-xs font-semibold hover:bg-blue-700">Simpan Jadwal</button>
-                                    </form>
-                                <?php endif; ?>
-                            </div>
+            <?php foreach ($donasi as $d):
+                // Pending belum bisa dibuka; verified -> verifikasi pemohon; atur_jadwal -> atur jadwal
+                $href = $d['status'] === 'atur_jadwal'
+                    ? 'atur-jadwal.php?id=' . (int)$d['id']
+                    : 'status-verifikasi.php?id=' . (int)$d['id'];
+                $tag   = $href ? 'a' : 'div';
+                $attr  = $href ? 'href="' . e($href) . '"' : '';
+                $hover = $href ? 'hover:border-blue-300 hover:shadow-sm cursor-pointer' : '';
+            ?>
+                <<?= $tag ?> <?= $attr ?> class="block border border-slate-300 rounded-[20px] p-3 bg-white transition <?= $hover ?>">
+                    <div class="flex items-center gap-3.5">
+                        <?= foto_atau_placeholder($d['foto'], $d['nama_barang'], 'w-[62px] h-[62px] rounded-xl shrink-0') ?>
+                        <div class="min-w-0">
+                            <h3 class="font-bold text-sm text-slate-900 truncate"><?= e($d['nama_barang']) ?></h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">
+                                <?= (int)$d['jumlah'] ?> unit • <?= e($d['status'] === 'pending' ? waktu_dibuat($d['created_at']) : waktu_relatif($d['created_at'])) ?>
+                            </p>
+                            <div class="mt-1.5"><?= badge_status($d['status']) ?></div>
                         </div>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <p class="p-6 text-center text-slate-400 text-sm">Belum ada permintaan masuk untuk barangmu.</p>
-                <?php endif; ?>
+                    </div>
+                </<?= $tag ?>>
+            <?php endforeach; ?>
+        </section>
+
+        <!-- Panel: Permintaan Saya -->
+        <section id="panel-permintaan" class="space-y-3 hidden">
+            <?php if (!$permintaan): ?>
+                <p class="text-xs text-slate-400 text-center py-8">Kamu belum meminta barang apa pun.</p>
+            <?php endif; ?>
+
+            <?php foreach ($permintaan as $p):
+                $label = ['menunggu' => ['Menunggu', 'bg-[#FEF3C7] text-[#D97706]', 'clock'],
+                          'diterima' => ['Diterima', 'bg-[#D1FAE5] text-[#059669]', 'check-circle'],
+                          'ditolak'  => ['Ditolak',  'bg-[#FECACA] text-[#B91C1C]', 'x']][$p['status_permintaan']];
+            ?>
+                <div class="border border-slate-300 rounded-[20px] p-3 bg-white">
+                    <div class="flex items-center gap-3.5">
+                        <?= foto_atau_placeholder($p['foto'], $p['nama_barang'], 'w-[62px] h-[62px] rounded-xl shrink-0') ?>
+                        <div class="min-w-0">
+                            <h3 class="font-bold text-sm text-slate-900 truncate"><?= e($p['nama_barang']) ?></h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5"><?= (int)$p['jumlah'] ?> unit • <?= e(waktu_relatif($p['created_at'])) ?></p>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium mt-1.5 <?= $label[1] ?>">
+                                <?= icon($label[2], 'w-3 h-3') ?><?= $label[0] ?>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </section>
+
+        <!-- Banner -->
+        <div class="bg-[#FEF3C7] rounded-2xl p-3.5 flex items-center gap-3 mt-4">
+            <span class="text-[#D97706] shrink-0"><?= icon('heart', 'w-8 h-8') ?></span>
+            <div>
+                <p class="text-[11px] font-bold text-slate-900 leading-snug">Tak terpakai di rumahmu, berarti bagi yang lain.</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Dampak besar pada setiap bentuk berbagi</p>
             </div>
         </div>
     </div>
+
+    <?php include __DIR__ . '/includes/navbar.php'; ?>
+</div>
+
+<script>
+    const indikator = document.getElementById('tabIndicator');
+    const tombol    = document.querySelectorAll('.tab-btn');
+    const panel     = { donasi: document.getElementById('panel-donasi'),
+                        permintaan: document.getElementById('panel-permintaan') };
+
+    function pilihTab(nama) {
+        indikator.style.transform = nama === 'donasi' ? 'translateX(0)' : 'translateX(100%)';
+        tombol.forEach(b => {
+            const aktif = b.dataset.tab === nama;
+            b.classList.toggle('text-white', aktif);
+            b.classList.toggle('text-slate-900', !aktif);
+        });
+        Object.entries(panel).forEach(([k, el]) => el.classList.toggle('hidden', k !== nama));
+    }
+    tombol.forEach(b => b.addEventListener('click', () => pilihTab(b.dataset.tab)));
+</script>
 </body>
 </html>
