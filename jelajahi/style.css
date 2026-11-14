@@ -384,3 +384,337 @@ body {
         height: 92px;
     }
 }
+
+
+/* ==========================================
+   FILTER BUTTON
+========================================== */
+
+.filter-trigger {
+    width: 124px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 8px;
+
+    padding: 0 11px;
+
+    border: 1px solid #dce4f2;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: #263653;
+
+    font-size: 12px;
+
+    cursor: pointer;
+}
+
+.filter-icon {
+    color: #315cff;
+    font-size: 18px;
+}
+
+.filter-arrow {
+    font-size: 16px;
+}
+
+
+/* ==========================================
+   FILTER OVERLAY
+========================================== */
+
+.filter-overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: 1000;
+
+    background: rgba(0, 0, 0, 0.65);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
+}
+
+.filter-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* ==========================================
+   FILTER BOTTOM SHEET
+========================================== */
+
+.filter-sheet {
+    position: fixed;
+
+    z-index: 1001;
+
+    left: 50%;
+    bottom: 0;
+
+    width: 100%;
+    max-width: 430px;
+
+    max-height: 90vh;
+    max-height: 90dvh;
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    padding: 8px 19px 25px;
+
+    background: #f7f9fd;
+
+    border-radius: 22px 22px 0 0;
+
+    transform: translate(-50%, 105%);
+
+    visibility: hidden;
+
+    transition:
+        transform 0.35s cubic-bezier(.22, 1, .36, 1),
+        visibility 0.35s ease;
+}
+
+.filter-sheet.active {
+    transform: translate(-50%, 0);
+
+    visibility: visible;
+}
+
+
+/* ==========================================
+   HANDLE
+========================================== */
+
+.sheet-handle {
+    width: 42px;
+    height: 4px;
+
+    margin: 0 auto 12px;
+
+    border-radius: 10px;
+
+    background: #dce4f2;
+}
+
+
+/* ==========================================
+   FILTER HEADER
+========================================== */
+
+.filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+}
+
+.filter-header h3 {
+    margin: 0;
+
+    color: #263653;
+
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.close-filter {
+    width: 28px;
+    height: 28px;
+
+    display: grid;
+    place-items: center;
+
+    border: none;
+
+    background: transparent;
+
+    color: #263653;
+
+    font-size: 22px;
+
+    cursor: pointer;
+}
+
+
+/* ==========================================
+   FILTER GROUP
+========================================== */
+
+.filter-group {
+    margin-bottom: 15px;
+}
+
+.filter-group > label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #263653;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+/* ==========================================
+   LOCATION SELECT
+========================================== */
+
+.filter-group select {
+    width: 100%;
+    height: 39px;
+
+    padding: 0 10px;
+
+    border: 1px solid #dce4f2;
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #263653;
+
+    font-size: 11px;
+}
+
+
+/* ==========================================
+   FILTER OPTIONS
+========================================== */
+
+.filter-options {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 5px;
+}
+
+.filter-option {
+    position: relative;
+
+    cursor: pointer;
+}
+
+.filter-option input {
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+.filter-option span {
+    display: block;
+
+    padding: 6px 10px;
+
+    border: 1px solid #dce4f2;
+    border-radius: 20px;
+
+    background: #ffffff;
+
+    color: #263653;
+
+    font-size: 10px;
+
+    transition: 0.2s ease;
+}
+
+.filter-option input:checked + span {
+    border-color: #315cff;
+
+    background: #315cff;
+
+    color: #ffffff;
+}
+
+
+/* ==========================================
+   FILTER ACTION BUTTONS
+========================================== */
+
+.filter-actions {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+
+    margin-top: 19px;
+}
+
+.filter-actions button,
+.filter-actions a {
+    width: 100%;
+    height: 41px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.apply-filter {
+    border: none;
+
+    background: #315cff;
+
+    color: #ffffff;
+}
+
+.reset-filter {
+    border: 1px solid #dce4f2;
+
+    background: #ffffff;
+
+    color: #315cff;
+
+    text-decoration: none;
+}
+
+
+/* ==========================================
+   PREVENT BACKGROUND SCROLL
+========================================== */
+
+body.filter-open {
+    overflow: hidden;
+}
+
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 360px) {
+
+    .filter-sheet {
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+
+    .filter-option span {
+        padding: 6px 8px;
+
+        font-size: 9px;
+    }
+
+}

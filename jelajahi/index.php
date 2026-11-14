@@ -6,7 +6,10 @@ error_reporting(E_ALL);
 
 session_start();
 
-// DATA BARANG DONASI (DATA SEMENTARA)
+// ==========================================
+// 1. DATA BARANG DONASI (DATA SEMENTARA)
+// ==========================================
+
 $barang = [
     [
         "id" => 1,
@@ -164,10 +167,10 @@ $barang = [
     ]
 ];
 
-// MENGAMBIL INPUT PENGGUNA
-$kataKunci = trim($_GET["q"] ?? "");
-$kategoriAktif = $_GET["kategori"] ?? "Semua";
-$urutan = $_GET["urutan"] ?? "terbaru";
+
+// ==========================================
+// 2. DATA KATEGORI
+// ==========================================
 
 $kategori = [
     "Semua",
@@ -179,48 +182,151 @@ $kategori = [
     "Lainnya"
 ];
 
-// INISIALISASI FAVORIT
+
+// ==========================================
+// 3. MENGAMBIL INPUT PENGGUNA
+// ==========================================
+
+$kataKunci = trim($_GET["q"] ?? "");
+
+$kategoriAktif = $_GET["kategori"] ?? "Semua";
+
+$lokasiFilter = $_GET["lokasi"] ?? "";
+
+$kondisiFilter = $_GET["kondisi"] ?? "";
+
+$ketersediaanFilter = $_GET["ketersediaan"] ?? "tersedia";
+
+$urutan = $_GET["urutan"] ?? "terbaru";
+
+
+// Validasi input kategori
+if (!in_array($kategoriAktif, $kategori)) {
+    $kategoriAktif = "Semua";
+}
+
+// Validasi urutan
+if (!in_array($urutan, ["terbaru", "terlama", "nama", "terdekat"])) {
+    $urutan = "terbaru";
+}
+
+// Validasi kondisi
+if (!in_array($kondisiFilter, ["", "Baru", "Seperti Baru", "Baik", "Cukup"])) {
+    $kondisiFilter = "";
+}
+
+// Validasi ketersediaan
+if (!in_array($ketersediaanFilter, ["semua", "tersedia"])) {
+    $ketersediaanFilter = "tersedia";
+}
+
+// Validasi lokasi
+$daftarLokasi = array_unique(array_column($barang, "lokasi"));
+
+if ($lokasiFilter !== "" && !in_array($lokasiFilter, $daftarLokasi)) {
+    $lokasiFilter = "";
+}
+
+
+// ==========================================
+// 4. INISIALISASI FAVORIT
+// ==========================================
+
 if (!isset($_SESSION["favorit"])) {
     $_SESSION["favorit"] = [];
 }
 
-// PROSES FAVORIT
+
+// ==========================================
+// 5. PROSES FAVORIT
+// ==========================================
+
 if (isset($_GET["favorit"])) {
 
     $id = (int) $_GET["favorit"];
 
     if (in_array($id, $_SESSION["favorit"])) {
-        $_SESSION["favorit"] = array_diff(
-            $_SESSION["favorit"],
-            [$id]
+
+        $_SESSION["favorit"] = array_values(
+            array_diff($_SESSION["favorit"], [$id])
         );
+
     } else {
+
         $_SESSION["favorit"][] = $id;
+
     }
 
     $parameter = $_GET;
+
     unset($parameter["favorit"]);
 
     header("Location: index.php?" . http_build_query($parameter));
     exit;
 }
 
-// PROSES PENCARIAN DAN FILTER
+
+// ==========================================
+// 6. PROSES PENCARIAN DAN FILTER
+// ==========================================
+
 $hasil = array_filter($barang, function ($item) use (
     $kataKunci,
-    $kategoriAktif
+    $kategoriAktif,
+    $lokasiFilter,
+    $kondisiFilter,
+    $ketersediaanFilter
 ) {
 
+    // Pencarian nama barang
     $cocokNama = $kataKunci === "" ||
         stripos($item["nama"], $kataKunci) !== false;
 
+    // Filter kategori
     $cocokKategori = $kategoriAktif === "Semua" ||
         $item["kategori"] === $kategoriAktif;
 
-    return $cocokNama && $cocokKategori;
+    // Filter lokasi
+    $cocokLokasi = $lokasiFilter === "" ||
+        $item["lokasi"] === $lokasiFilter;
+
+    // Filter kondisi
+    $cocokKondisi = true;
+
+    if ($kondisiFilter !== "") {
+
+        if ($kondisiFilter === "Baru") {
+
+            $cocokKondisi = strpos($item["kondisi"], "Baru") === 0;
+
+        } elseif ($kondisiFilter === "Seperti Baru") {
+
+            $cocokKondisi = $item["kondisi"] === "Seperti Baru";
+
+        } else {
+
+            $cocokKondisi = $item["kondisi"] === $kondisiFilter;
+
+        }
+    }
+
+    // Filter ketersediaan
+    $cocokKetersediaan = $ketersediaanFilter === "semua" ||
+        $item["status"] === "Tersedia";
+
+    return
+        $cocokNama &&
+        $cocokKategori &&
+        $cocokLokasi &&
+        $cocokKondisi &&
+        $cocokKetersediaan;
 });
 
-// PROSES PENGURUTAN
+
+// ==========================================
+// 7. PROSES PENGURUTAN
+// ==========================================
+
 usort($hasil, function ($a, $b) use ($urutan) {
 
     if ($urutan === "terlama") {
@@ -231,10 +337,18 @@ usort($hasil, function ($a, $b) use ($urutan) {
         return strcasecmp($a["nama"], $b["nama"]);
     }
 
+    if ($urutan === "terdekat") {
+        return $a["jarak"] <=> $b["jarak"];
+    }
+
     return strcmp($b["tanggal"], $a["tanggal"]);
 });
 
-// FUNGSI MENGAMANKAN OUTPUT
+
+// ==========================================
+// 8. FUNGSI PENGAMANAN OUTPUT
+// ==========================================
+
 function e($teks) {
     return htmlspecialchars(
         (string) $teks,
@@ -243,10 +357,15 @@ function e($teks) {
     );
 }
 
-// FUNGSI MEMPERTAHANKAN FILTER SAAT PINDAH KATEGORI
+
+// ==========================================
+// 9. FUNGSI MEMPERTAHANKAN PARAMETER URL
+// ==========================================
+
 function urlDengan($perubahan = []) {
 
     $parameter = $_GET;
+
     unset($parameter["favorit"]);
 
     foreach ($perubahan as $key => $value) {
@@ -267,13 +386,16 @@ function urlDengan($perubahan = []) {
 <html lang="id">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
     <title>Jelajahi - ShareSpace</title>
 
-    <link rel="stylesheet" href="./style.css?v=1">
+    <link rel="stylesheet" href="./style.css?v=2">
+
 </head>
 
 <body>
@@ -307,6 +429,18 @@ function urlDengan($perubahan = []) {
                    name="urutan"
                    value="<?= e($urutan) ?>">
 
+            <input type="hidden"
+                   name="lokasi"
+                   value="<?= e($lokasiFilter) ?>">
+
+            <input type="hidden"
+                   name="kondisi"
+                   value="<?= e($kondisiFilter) ?>">
+
+            <input type="hidden"
+                   name="ketersediaan"
+                   value="<?= e($ketersediaanFilter) ?>">
+
             <span class="search-icon">⌕</span>
 
             <input
@@ -327,7 +461,7 @@ function urlDengan($perubahan = []) {
                 <a
                     href="<?= e(urlDengan([
                         "kategori" => $namaKategori === "Semua"
-                            ? null
+                            ? "Semua"
                             : $namaKategori
                     ])) ?>"
                     class="category-chip
@@ -335,6 +469,7 @@ function urlDengan($perubahan = []) {
                         ? "active"
                         : "" ?>"
                 >
+
                     <?= e($namaKategori) ?>
 
                 </a>
@@ -348,48 +483,29 @@ function urlDengan($perubahan = []) {
         <section class="location-row">
 
             <div class="location-label">
+
                 <span class="pin">⌖</span>
+
                 Jimbaran, Bali
+
                 <span class="chevron">⌄</span>
+
             </div>
 
-            <form method="GET"
-                  action="index.php"
-                  class="filter-form">
 
-                <input type="hidden"
-                       name="q"
-                       value="<?= e($kataKunci) ?>">
+            <button
+                type="button"
+                class="filter-trigger"
+                id="openFilter"
+            >
 
-                <label class="filter-select-wrap">
+                <span class="filter-icon">☷</span>
 
-                    <span>☷</span>
+                Filter
 
-                    <select name="kategori"
-                            onchange="this.form.submit()">
+                <span class="filter-arrow">⌄</span>
 
-                        <option value="Semua">Filter</option>
-
-                        <?php foreach ($kategori as $namaKategori): ?>
-
-                            <?php if ($namaKategori === "Semua") continue; ?>
-
-                            <option
-                                value="<?= e($namaKategori) ?>"
-                                <?= $kategoriAktif === $namaKategori
-                                    ? "selected"
-                                    : "" ?>
-                            >
-                                <?= e($namaKategori) ?>
-                            </option>
-
-                        <?php endforeach; ?>
-
-                    </select>
-
-                </label>
-
-            </form>
+            </button>
 
         </section>
 
@@ -401,6 +517,7 @@ function urlDengan($perubahan = []) {
                 <?= count($hasil) ?>
                 barang di sekitar
             </strong>
+
 
             <form method="GET"
                   action="index.php"
@@ -414,6 +531,19 @@ function urlDengan($perubahan = []) {
                        name="kategori"
                        value="<?= e($kategoriAktif) ?>">
 
+                <input type="hidden"
+                       name="lokasi"
+                       value="<?= e($lokasiFilter) ?>">
+
+                <input type="hidden"
+                       name="kondisi"
+                       value="<?= e($kondisiFilter) ?>">
+
+                <input type="hidden"
+                       name="ketersediaan"
+                       value="<?= e($ketersediaanFilter) ?>">
+
+
                 <select name="urutan"
                         onchange="this.form.submit()">
 
@@ -425,6 +555,11 @@ function urlDengan($perubahan = []) {
                     <option value="terlama"
                         <?= $urutan === "terlama" ? "selected" : "" ?>>
                         Terlama
+                    </option>
+
+                    <option value="terdekat"
+                        <?= $urutan === "terdekat" ? "selected" : "" ?>>
+                        Terdekat
                     </option>
 
                     <option value="nama"
@@ -468,11 +603,15 @@ function urlDengan($perubahan = []) {
                                 ])) ?>"
                                 class="favorite-button
                                 <?= $disukai ? "liked" : "" ?>"
+                                aria-label="Favorit <?= e($item["nama"]) ?>"
                             >
+
                                 <?= $disukai ? "♥" : "♡" ?>
+
                             </a>
 
                         </div>
+
 
                         <div class="product-info">
 
@@ -485,16 +624,22 @@ function urlDengan($perubahan = []) {
                             </p>
 
                             <p class="product-location">
+
                                 <span>⌖</span>
+
                                 <?= e($item["lokasi"]) ?>
+
                                 ·
+
                                 <?= e(number_format(
                                     $item["jarak"],
                                     1,
                                     ",",
                                     "."
                                 )) ?>
+
                                 km
+
                             </p>
 
                             <p class="product-condition">
@@ -502,8 +647,11 @@ function urlDengan($perubahan = []) {
                             </p>
 
                             <span class="availability">
+
                                 <i></i>
+
                                 <?= e($item["status"]) ?>
+
                             </span>
 
                         </div>
@@ -541,47 +689,361 @@ function urlDengan($perubahan = []) {
 
     <!-- BOTTOM NAVIGATION -->
     <nav class="bottom-nav">
-        <a href="../index.php" class="nav-item">
+
+        <a href="../beranda/index.php" class="nav-item">
+
             <svg viewBox="0 0 24 24">
                 <path d="M3 10.5L12 3l9 7.5V21h-6v-6H9v6H3z"/>
             </svg>
+
             <span>Beranda</span>
+
         </a>
 
-        <a href="index.php" class="nav-item active">
+
+        <a href="../jelajahi/index.php" class="nav-item active">
+
             <svg viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="9"/>
                 <path d="M15.5 8.5l-2.5 7-4.5 1.5 2.5-7z"/>
             </svg>
+
             <span>Jelajahi</span>
+
         </a>
 
+
         <a href="../bagikan/index.php" class="nav-item">
+
             <svg viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="9"/>
                 <path d="M12 8v8M8 12h8"/>
             </svg>
+
             <span>Bagikan</span>
+
         </a>
 
+
         <a href="../aktivitas/index.php" class="nav-item">
+
             <svg viewBox="0 0 24 24">
                 <path d="M3 5h18v14H3z"/>
                 <path d="M7 19v2h10v-2"/>
             </svg>
+
             <span>Aktivitas</span>
+
         </a>
 
+
         <a href="../profil/index.php" class="nav-item">
+
             <svg viewBox="0 0 24 24">
                 <circle cx="12" cy="7" r="4"/>
                 <path d="M4 21v-2a8 8 0 0 1 16 0v2"/>
             </svg>
+
             <span>Profil</span>
+
         </a>
+
     </nav>
 
 </div>
+
+
+<!-- ==========================================
+     FILTER BOTTOM SHEET
+========================================== -->
+
+<!-- OVERLAY -->
+<div
+    class="filter-overlay"
+    id="filterOverlay"
+></div>
+
+
+<!-- FILTER PANEL -->
+<div
+    class="filter-sheet"
+    id="filterSheet"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="filterTitle"
+>
+
+    <div class="sheet-handle"></div>
+
+
+    <!-- HEADER -->
+    <div class="filter-header">
+
+        <h3 id="filterTitle">Filter barang</h3>
+
+        <button
+            type="button"
+            class="close-filter"
+            id="closeFilter"
+            aria-label="Tutup filter"
+        >
+            &times;
+        </button>
+
+    </div>
+
+
+    <!-- FORM FILTER -->
+    <form
+        action="index.php"
+        method="GET"
+        id="filterForm"
+    >
+
+        <!-- PERTAHANKAN PENCARIAN DAN KATEGORI -->
+        <input
+            type="hidden"
+            name="q"
+            value="<?= e($kataKunci) ?>"
+        >
+
+        <input
+            type="hidden"
+            name="kategori"
+            value="<?= e($kategoriAktif) ?>"
+        >
+
+
+        <!-- LOKASI -->
+        <div class="filter-group">
+
+            <label for="lokasiFilter">Lokasi</label>
+
+            <select
+                name="lokasi"
+                id="lokasiFilter"
+            >
+
+                <option value=""
+                    <?= $lokasiFilter === "" ? "selected" : "" ?>>
+                    Semua lokasi
+                </option>
+
+                <?php foreach ($daftarLokasi as $lokasi): ?>
+
+                    <option
+                        value="<?= e($lokasi) ?>"
+                        <?= $lokasiFilter === $lokasi ? "selected" : "" ?>
+                    >
+                        <?= e($lokasi) ?>, Bali
+                    </option>
+
+                <?php endforeach; ?>
+
+            </select>
+
+        </div>
+
+
+        <!-- KONDISI -->
+        <div class="filter-group">
+
+            <label>Kondisi</label>
+
+            <div class="filter-options">
+
+                <?php
+                $pilihanKondisi = [
+                    "Baru",
+                    "Seperti Baru",
+                    "Baik",
+                    "Cukup"
+                ];
+                ?>
+
+                <?php foreach ($pilihanKondisi as $kondisi): ?>
+
+                    <label class="filter-option">
+
+                        <input
+                            type="radio"
+                            name="kondisi"
+                            value="<?= e($kondisi) ?>"
+                            <?= $kondisiFilter === $kondisi ? "checked" : "" ?>
+                        >
+
+                        <span><?= e($kondisi) ?></span>
+
+                    </label>
+
+                <?php endforeach; ?>
+
+            </div>
+
+        </div>
+
+
+        <!-- KETERSEDIAAN -->
+        <div class="filter-group">
+
+            <label>Ketersediaan</label>
+
+            <div class="filter-options">
+
+                <label class="filter-option">
+
+                    <input
+                        type="radio"
+                        name="ketersediaan"
+                        value="semua"
+                        <?= $ketersediaanFilter === "semua" ? "checked" : "" ?>
+                    >
+
+                    <span>Semua barang</span>
+
+                </label>
+
+
+                <label class="filter-option">
+
+                    <input
+                        type="radio"
+                        name="ketersediaan"
+                        value="tersedia"
+                        <?= $ketersediaanFilter === "tersedia" ? "checked" : "" ?>
+                    >
+
+                    <span>Hanya tersedia</span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+
+        <!-- URUTKAN -->
+        <div class="filter-group">
+
+            <label>Urutkan</label>
+
+            <div class="filter-options">
+
+                <label class="filter-option">
+
+                    <input
+                        type="radio"
+                        name="urutan"
+                        value="terbaru"
+                        <?= $urutan === "terbaru" ? "checked" : "" ?>
+                    >
+
+                    <span>Terbaru</span>
+
+                </label>
+
+
+                <label class="filter-option">
+
+                    <input
+                        type="radio"
+                        name="urutan"
+                        value="terdekat"
+                        <?= $urutan === "terdekat" ? "checked" : "" ?>
+                    >
+
+                    <span>Terdekat</span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+
+        <!-- TOMBOL FILTER -->
+        <div class="filter-actions">
+
+            <button
+                type="submit"
+                class="apply-filter"
+            >
+                Terapkan filter
+            </button>
+
+
+            <a
+                href="<?= e(urlDengan([
+                    "lokasi" => null,
+                    "kondisi" => null,
+                    "ketersediaan" => null,
+                    "urutan" => "terbaru"
+                ])) ?>"
+                class="reset-filter"
+            >
+                Hapus filter
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- ==========================================
+     JAVASCRIPT FILTER
+========================================== -->
+
+<script>
+
+const openFilter = document.getElementById('openFilter');
+
+const closeFilter = document.getElementById('closeFilter');
+
+const filterOverlay = document.getElementById('filterOverlay');
+
+const filterSheet = document.getElementById('filterSheet');
+
+
+function showFilter() {
+
+    filterOverlay.classList.add('active');
+
+    filterSheet.classList.add('active');
+
+    document.body.classList.add('filter-open');
+
+}
+
+
+function hideFilter() {
+
+    filterOverlay.classList.remove('active');
+
+    filterSheet.classList.remove('active');
+
+    document.body.classList.remove('filter-open');
+
+}
+
+
+openFilter.addEventListener('click', showFilter);
+
+closeFilter.addEventListener('click', hideFilter);
+
+filterOverlay.addEventListener('click', hideFilter);
+
+
+document.addEventListener('keydown', function(event) {
+
+    if (event.key === 'Escape') {
+        hideFilter();
+    }
+
+});
+
+</script>
 
 </body>
 </html>
