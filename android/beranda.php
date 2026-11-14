@@ -128,7 +128,7 @@ $recommendations = [
 
             <!-- Search Bar -> Diarahkan ke ../jelajahi/jelajahi.php -->
             <section class="mb-6">
-                <a href="../jelajahi/jelajahi.php" class="flex items-center gap-3 w-full bg-white border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-400 shadow-2xs hover:border-[#2554E8] transition-colors">
+                <a href="jelajahi.php" class="flex items-center gap-3 w-full bg-white border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-400 shadow-2xs hover:border-[#2554E8] transition-colors">
                     <svg class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18a7.5 7.5 0 006.15-3.35z" />
                     </svg>
@@ -139,7 +139,7 @@ $recommendations = [
             <!-- Category Grid -> Diarahkan ke ../jelajahi/jelajahi.php?category=... -->
             <section class="grid grid-cols-3 gap-3 mb-6">
                 <?php foreach ($quickCategories as $cat): ?>
-                    <a href="../jelajahi/jelajahi.php?category=<?= urlencode($cat['target_category']) ?>" 
+                    <a href="jelajahi.php?category=<?= urlencode($cat['target_category']) ?>" 
                        class="bg-[#F3F6FD] hover:bg-[#E8EEFC] active:scale-95 rounded-2xl py-4 px-2 flex flex-col items-center justify-center gap-2 transition-all">
                         <div class="w-8 h-8 flex items-center justify-center">
                             <?= $cat['icon'] ?>
@@ -175,7 +175,7 @@ $recommendations = [
             <section>
                 <div class="flex items-center justify-between mb-3.5">
                     <h2 class="text-[17px] font-bold text-slate-900">Rekomendasi untukmu</h2>
-                    <a href="../jelajahi/jelajahi.php?category=Semua" class="text-xs font-semibold text-[#2554E8] hover:underline">
+                    <a href="jelajahi.php?category=Semua" class="text-xs font-semibold text-[#2554E8] hover:underline">
                         Lihat Semua
                     </a>
                 </div>
@@ -246,8 +246,8 @@ $recommendations = [
                 <span class="text-[10px] font-semibold">Beranda</span>
             </a>
 
-            <!-- Tab: Jelajahi -> Mengarah ke ../jelajahi/jelajahi.php -->
-            <a href="../jelajahi/jelajahi.php" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 py-1 px-2">
+            <!-- Tab: Jelajahi -> Mengarah ke /jelajahi.php -->
+            <a href="jelajahi.php" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 py-1 px-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="9"/>
                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.5 9.5l-2 5-5 2 2-5 5-2z"/>
