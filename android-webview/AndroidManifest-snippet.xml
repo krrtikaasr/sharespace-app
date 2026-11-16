@@ -1,0 +1,8 @@
+<!-- Tambahkan di AndroidManifest.xml (di dalam <manifest>, di atas <application>) -->
+<uses-permission android:name="android.permission.INTERNET" />
+
+<!-- HANYA jika masih memakai http:// saat uji coba (emulator ke laptop), tambahkan di tag <application>:
+     android:usesCleartextTraffic="true"
+     Untuk hosting https, JANGAN dipakai. -->
+
+<!-- Emulator Android Studio mengakses laptop lewat: http://10.0.2.2/sharespace-app/status-donasi.php -->
