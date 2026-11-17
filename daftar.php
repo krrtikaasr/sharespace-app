@@ -1,6 +1,5 @@
 <?php
 require 'includes/auth.php';
-const MODE_PREVIEW = true;
 
 if (!empty($_SESSION['user'])) { header('Location: ' . arah_role($_SESSION['user']['role'])); exit; }
 
