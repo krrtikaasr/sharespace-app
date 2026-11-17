@@ -42,22 +42,18 @@ $recommendations = [
         'id' => 1,
        'title' => 'Roti Gandum',
         'category' => 'Makanan',
-        'location' => 'Jimbaran',
-        'distance' => '6 km',
-        'condition' => 'Baru - Layak Konsumsi',
+        'location' => 'Denpasar',
+        'condition' => 'Baru Hari Ini',
         'status' => 'Tersedia',
-        'liked' => false,
         'image' => '../assets/roti-gandum.png'
     ],
     [
         'id' => 2,
         'title' => 'Buku',
         'category' => 'Alat Tulis',
-        'location' => 'Jimbaran',
-        'distance' => '1,5 km',
+        'location' => 'Tabanan',
         'condition' => 'Kondisi baik',
         'status' => 'Tersedia',
-        'liked' => false,
         'image' => '../assets/buku.png'
     ],
 ];
@@ -151,26 +147,6 @@ $recommendations = [
                 <?php endforeach; ?>
             </section>
 
-            <!-- Akses Cepat Card -->
-            <section class="bg-[#F3F6FD] rounded-2xl p-4 mb-6">
-                <h2 class="text-[15px] font-bold text-slate-900 mb-3">Akses Cepat</h2>
-                <div class="grid grid-cols-2 gap-3">
-                    <a href="#" class="bg-white hover:bg-slate-50 rounded-xl py-3 px-3.5 flex items-center justify-center gap-2 border border-slate-100/80 shadow-2xs transition-colors">
-                        <svg class="w-4 h-4 text-[#2554E8]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                        </svg>
-                        <span class="text-xs font-semibold text-slate-800">Donasi Saya</span>
-                    </a>
-
-                    <a href="#" class="bg-white hover:bg-slate-50 rounded-xl py-3 px-3.5 flex items-center justify-center gap-2 border border-slate-100/80 shadow-2xs transition-colors">
-                        <svg class="w-4 h-4 text-[#2554E8]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                        </svg>
-                        <span class="text-xs font-semibold text-slate-800">Favorit</span>
-                    </a>
-                </div>
-            </section>
-
             <!-- Rekomendasi untukmu (2 Barang) -->
             <section>
                 <div class="flex items-center justify-between mb-3.5">
@@ -180,7 +156,7 @@ $recommendations = [
                     </a>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3.5">
+                <div class="grid grid-cols-2 gap-0.5">
                     <?php foreach ($recommendations as $item): ?>
                         <article class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden flex flex-col hover:shadow-md transition-shadow">
                             <div class="relative aspect-[4/3] bg-slate-100 overflow-hidden">
@@ -189,42 +165,32 @@ $recommendations = [
                                     alt="<?= htmlspecialchars($item['title']) ?>" 
                                     class="w-full h-full object-cover"
                                 >
-                                <button 
-                                    type="button"
-                                    onclick="toggleLike(this)"
-                                    class="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/95 backdrop-blur-xs flex items-center justify-center shadow-xs transition-transform active:scale-90"
-                                    aria-label="Sukai barang"
-                                >
-                                    <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                    </svg>
-                                </button>
                             </div>
 
-                            <div class="p-3 flex-1 flex flex-col justify-between">
-                                <div>
+                            <div class="p-3 flex-1 flex flex-col justify-between gap-0.5">
+                                <div class="flex flex-col gap-0.5">
                                     <h3 class="text-[14px] font-bold text-slate-900 line-clamp-1">
                                         <?= htmlspecialchars($item['title']) ?>
                                     </h3>
-                                    <p class="text-[11px] text-slate-500 mt-0.5">
+                                    <p class="text-[11px] text-slate-500">
                                         <?= htmlspecialchars($item['category']) ?>
                                     </p>
 
-                                    <div class="flex items-center gap-1 text-[11px] text-slate-500 mt-2">
+                                    <div class="flex items-center gap-1 text-[11px] text-slate-500">
                                         <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z"/>
                                             <circle cx="12" cy="11" r="2"/>
                                         </svg>
-                                        <span class="truncate"><?= htmlspecialchars($item['location']) ?> · <?= htmlspecialchars($item['distance']) ?></span>
+                                        <span class="truncate"><?= htmlspecialchars($item['location']) ?></span>
                                     </div>
 
-                                    <p class="text-[11px] text-slate-500 mt-0.5 truncate">
+                                    <p class="text-[11px] text-slate-500 truncate">
                                         <?= htmlspecialchars($item['condition']) ?>
                                     </p>
                                 </div>
 
-                                <div class="mt-2.5">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-600">
+                                <div>
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-600">
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                         <?= htmlspecialchars($item['status']) ?>
                                     </span>
