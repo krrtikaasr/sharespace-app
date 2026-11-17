@@ -2,7 +2,7 @@
 $username = "Username";
 $initials = "AN";
 
-// Daftar Kategori untuk Grid 3x2
+// Daftar Kategori untuk Grid 3x2 (HP) / 6x1 (laptop)
 $quickCategories = [
     [
         'label' => 'Makanan',
@@ -37,13 +37,14 @@ $quickCategories = [
 ];
 
 // Rekomendasi untukmu (Path gambar naik 1 folder ke ../assets/)
+// Tambahkan item di sini: di laptop tampil 3 kolom, di HP 2 kolom.
 $recommendations = [
     [
         'id' => 1,
-       'title' => 'Roti Gandum',
+        'title' => 'Roti Gandum',
         'category' => 'Makanan',
         'location' => 'Denpasar',
-        'condition' => 'Baru Hari Ini',
+        'condition' => 'Baru hari ini',
         'status' => 'Tersedia',
         'image' => '../assets/roti-gandum.png'
     ],
@@ -56,7 +57,68 @@ $recommendations = [
         'status' => 'Tersedia',
         'image' => '../assets/buku.png'
     ],
+    [
+        'id' => 3,
+        'title' => 'Boneka',
+        'category' => 'Lainnya',
+        'location' => 'Bangli',
+        'condition' => 'Baik',
+        'status' => 'Tersedia',
+        'image' => '../assets/boneka.png'
+    ],
 ];
+
+// Menu navigasi: dipakai bersama oleh bottom nav (HP) dan sidebar (laptop)
+$navItems = [
+    [
+        'label' => 'Beranda',
+        'href' => 'beranda.php',
+        'active' => true,
+        'paths' => '<path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>'
+    ],
+    [
+        'label' => 'Jelajahi',
+        'href' => 'jelajahi.php',
+        'active' => false,
+        'paths' => '<circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M14.5 9.5l-2 5-5 2 2-5 5-2z"/>'
+    ],
+    [
+        'label' => 'Bagikan',
+        'href' => '#',
+        'active' => false,
+        'paths' => '<circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8m-4-4h8"/>'
+    ],
+    [
+        'label' => 'Aktivitas',
+        'href' => '#',
+        'active' => false,
+        'paths' => '<path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>'
+    ],
+    [
+        'label' => 'Profil',
+        'href' => '#',
+        'active' => false,
+        'paths' => '<path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>'
+    ],
+];
+
+// Logo ShareSpace (dipakai di header HP dan sidebar laptop)
+$renderBrand = function ($large = false) { ?>
+    <a href="beranda.php" class="flex items-center <?= $large ? 'gap-3' : 'gap-2.5' ?>">
+        <!-- App Icon (Tangan Menadah Hati) -->
+        <div class="<?= $large ? 'w-[52px] h-[52px] rounded-[14px]' : 'w-9 h-9 rounded-xl' ?> bg-[#2554E8] flex items-center justify-center shadow-xs">
+            <svg class="<?= $large ? 'w-7 h-7' : 'w-5 h-5' ?> text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <!-- Ikon Hati di Atas Tangan -->
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" transform="translate(3.5, -1) scale(0.65)" />
+                <!-- Ikon Telapak Tangan -->
+                <path d="M2 14.5l3.5 3.5" />
+                <path d="M4.5 17l3.5-3.5a2 2 0 0 1 2.8 0l1.2 1.2a2 2 0 0 0 2.8 0l3.7-3.7a1.8 1.8 0 0 1 2.5 2.5l-5.3 5.3a4 4 0 0 1-2.8 1.2H7.5" />
+                <path d="M9.5 15.5h3" />
+            </svg>
+        </div>
+        <span class="<?= $large ? 'text-[24px]' : 'text-[19px]' ?> font-bold text-slate-900 tracking-tight">ShareSpace</span>
+    </a>
+<?php };
 ?>
 
 <!DOCTYPE html>
@@ -70,33 +132,58 @@ $recommendations = [
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1f2937;
         }
     </style>
 </head>
-<body class="flex justify-center min-h-screen">
+<!--
+    HP     (< 1024px): satu kolom + bottom navigation (desain asli)
+    Laptop (>= 1024px): sidebar kiri, sapaan di tengah, cari + tombol, rekomendasi 3 kolom
+    Layar lebar (>= 1280px): kategori berbentuk ikon + teks sejajar
+-->
+<body class="min-h-screen bg-white lg:flex">
 
-    <!-- Container Mobile View -->
-    <div class="w-full max-w-[430px] bg-white min-h-screen flex flex-col relative shadow-2xl">
-        
-        <!-- Top App Bar -->
-        <header class="px-5 pt-6 pb-2 flex items-center justify-between bg-white">
-            <a href="beranda.php" class="flex items-center gap-2.5">
-                <!-- App Icon (Tangan Menadah Hati) -->
-                <div class="w-9 h-9 rounded-xl bg-[#2554E8] flex items-center justify-center shadow-xs">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                        <!-- Ikon Hati di Atas Tangan -->
-                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" transform="translate(3.5, -1) scale(0.65)" />
-                        <!-- Ikon Telapak Tangan -->
-                        <path d="M2 14.5l3.5 3.5" />
-                        <path d="M4.5 17l3.5-3.5a2 2 0 0 1 2.8 0l1.2 1.2a2 2 0 0 0 2.8 0l3.7-3.7a1.8 1.8 0 0 1 2.5 2.5l-5.3 5.3a4 4 0 0 1-2.8 1.2H7.5" />
-                        <path d="M9.5 15.5h3" />
+    <!-- Sidebar (hanya laptop) -->
+    <aside class="hidden lg:flex lg:flex-col w-[267px] shrink-0 sticky top-0 h-screen bg-white border-r border-slate-200/70 px-6 pt-10 pb-8">
+        <div>
+            <?php $renderBrand(true); ?>
+        </div>
+
+        <p class="mt-[78px] mb-2 px-2 text-sm tracking-wide text-slate-500">MENU</p>
+
+        <nav class="flex flex-col gap-0.5">
+            <?php foreach ($navItems as $nav): ?>
+                <a href="<?= $nav['href'] ?>"
+                   class="flex items-center gap-3 px-2 h-11 rounded-xl text-sm font-semibold transition-colors <?= $nav['active']
+                        ? 'text-[#2554E8]'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700' ?>">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="<?= $nav['active'] ? '2' : '1.8' ?>" viewBox="0 0 24 24">
+                        <?= $nav['paths'] ?>
                     </svg>
-                </div>
-                <span class="text-[19px] font-bold text-slate-900 tracking-tight">ShareSpace</span>
-            </a>
+                    <?= htmlspecialchars($nav['label']) ?>
+                </a>
+            <?php endforeach; ?>
+        </nav>
 
-            <div class="flex items-center gap-2.5">
+        <!-- Akun pengguna -->
+        <a href="#" class="mt-auto flex items-center gap-3 px-2">
+            <span class="w-9 h-9 rounded-full bg-[#EEF2FF] text-[#2554E8] text-xs font-bold flex items-center justify-center">
+                <?= htmlspecialchars($initials) ?>
+            </span>
+            <span class="text-sm font-semibold text-slate-900"><?= htmlspecialchars($username) ?></span>
+        </a>
+    </aside>
+
+    <!-- Area konten -->
+    <div class="w-full flex-1 min-w-0 min-h-screen flex flex-col relative lg:bg-[#F8FAFD]">
+
+        <!-- Top App Bar -->
+        <header class="px-5 pt-6 pb-2 lg:px-7 lg:pt-6 flex items-center justify-between bg-white lg:bg-transparent">
+            <!-- Logo: tampil di HP saja (di laptop sudah ada di sidebar) -->
+            <div class="lg:hidden">
+                <?php $renderBrand(); ?>
+            </div>
+
+            <div class="flex items-center gap-2.5 lg:ml-auto">
                 <button type="button" class="relative w-10 h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors" aria-label="Notifikasi">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
@@ -104,144 +191,123 @@ $recommendations = [
                     <span class="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-[#2554E8] ring-2 ring-white"></span>
                 </button>
 
-                <a href="#" class="w-10 h-10 rounded-full bg-[#EEF2FF] text-[#2554E8] text-xs font-bold flex items-center justify-center hover:bg-blue-100 transition-colors">
+                <a href="#" class="lg:hidden w-10 h-10 rounded-full bg-[#EEF2FF] text-[#2554E8] text-xs font-bold flex items-center justify-center hover:bg-blue-100 transition-colors">
                     <?= htmlspecialchars($initials) ?>
                 </a>
             </div>
         </header>
 
         <!-- Main Content -->
-        <main class="px-5 pt-4 pb-24 flex-1">
-            <!-- Greeting Section -->
-            <section class="mb-5">
-                <h1 class="text-[28px] font-bold text-slate-900 tracking-tight leading-tight">
-                    Halo, <?= htmlspecialchars($username) ?>!
-                </h1>
-                <p class="text-[13px] text-slate-500 mt-1">
-                    Beri barang tak terpakai kehidupan baru.
-                </p>
-            </section>
+        <main class="px-5 pt-4 pb-24 lg:px-12 lg:pt-24 lg:pb-12 flex-1">
+            <div class="w-full max-w-5xl mx-auto">
 
-            <!-- Search Bar -> Diarahkan ke ../jelajahi/jelajahi.php -->
-            <section class="mb-6">
-                <a href="jelajahi.php" class="flex items-center gap-3 w-full bg-white border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-400 shadow-2xs hover:border-[#2554E8] transition-colors">
-                    <svg class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18a7.5 7.5 0 006.15-3.35z" />
-                    </svg>
-                    <span class="text-[13px]">Cari barang yang kamu butuhkan...</span>
-                </a>
-            </section>
+                <!-- Greeting Section -->
+                <section class="mb-5 lg:mb-6 lg:text-center">
+                    <h1 class="text-[28px] lg:text-[36px] font-bold text-slate-900 tracking-tight leading-tight">
+                        Halo, <?= htmlspecialchars($username) ?>!
+                    </h1>
+                    <p class="text-[13px] lg:text-base text-slate-500 mt-1">
+                        Beri barang tak terpakai kehidupan baru.
+                    </p>
+                </section>
 
-            <!-- Category Grid -> Diarahkan ke ../jelajahi/jelajahi.php?category=... -->
-            <section class="grid grid-cols-3 gap-3 mb-6">
-                <?php foreach ($quickCategories as $cat): ?>
-                    <a href="jelajahi.php?category=<?= urlencode($cat['target_category']) ?>" 
-                       class="bg-[#F3F6FD] hover:bg-[#E8EEFC] active:scale-95 rounded-2xl py-4 px-2 flex flex-col items-center justify-center gap-2 transition-all">
-                        <div class="w-8 h-8 flex items-center justify-center">
-                            <?= $cat['icon'] ?>
-                        </div>
-                        <span class="text-xs font-medium text-slate-800">
-                            <?= htmlspecialchars($cat['label']) ?>
-                        </span>
+                <!-- Search Bar -> Diarahkan ke jelajahi.php -->
+                <section class="mb-6 lg:mb-10 lg:max-w-[955px] lg:mx-auto flex gap-3">
+                    <a href="jelajahi.php" class="flex items-center gap-3 flex-1 min-w-0 lg:h-14 bg-white border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-400 shadow-2xs hover:border-[#2554E8] transition-colors">
+                        <svg class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18a7.5 7.5 0 006.15-3.35z" />
+                        </svg>
+                        <span class="text-[13px] lg:text-sm truncate">Cari barang yang kamu butuhkan...</span>
                     </a>
-                <?php endforeach; ?>
-            </section>
-
-            <!-- Rekomendasi untukmu (2 Barang) -->
-            <section>
-                <div class="flex items-center justify-between mb-3.5">
-                    <h2 class="text-[17px] font-bold text-slate-900">Rekomendasi untukmu</h2>
-                    <a href="jelajahi.php?category=Semua" class="text-xs font-semibold text-[#2554E8] hover:underline">
-                        Lihat Semua
+                    <!-- Tombol cari (hanya laptop) -->
+                    <a href="jelajahi.php" class="hidden lg:flex items-center justify-center lg:h-14 px-8 rounded-2xl bg-[#2554E8] hover:bg-[#1f47c9] text-white text-[15px] font-semibold transition-colors">
+                        Cari barang
                     </a>
-                </div>
+                </section>
 
-                <div class="grid grid-cols-2 gap-0.5">
-                    <?php foreach ($recommendations as $item): ?>
-                        <article class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-                            <div class="relative aspect-[4/3] bg-slate-100 overflow-hidden">
-                                <img 
-                                    src="<?= htmlspecialchars($item['image']) ?>" 
-                                    alt="<?= htmlspecialchars($item['title']) ?>" 
-                                    class="w-full h-full object-cover"
-                                >
+                <!-- Category Grid: HP 3 kolom, tablet/laptop 6 kolom -->
+                <section class="grid grid-cols-3 md:grid-cols-6 gap-3 lg:gap-4 xl:gap-6 mb-6 lg:mb-10">
+                    <?php foreach ($quickCategories as $cat): ?>
+                        <a href="jelajahi.php?category=<?= urlencode($cat['target_category']) ?>"
+                           class="bg-[#F3F6FD] hover:bg-[#E8EEFC] active:scale-95 rounded-2xl py-4 px-2 flex flex-col xl:flex-row items-center justify-center gap-2 xl:gap-3 xl:h-20 transition-all">
+                            <div class="w-8 h-8 flex items-center justify-center">
+                                <?= $cat['icon'] ?>
                             </div>
+                            <span class="text-xs xl:text-sm font-medium xl:font-semibold text-slate-800">
+                                <?= htmlspecialchars($cat['label']) ?>
+                            </span>
+                        </a>
+                    <?php endforeach; ?>
+                </section>
 
-                            <div class="p-3 flex-1 flex flex-col justify-between gap-0.5">
-                                <div class="flex flex-col gap-0.5">
-                                    <h3 class="text-[14px] font-bold text-slate-900 line-clamp-1">
-                                        <?= htmlspecialchars($item['title']) ?>
-                                    </h3>
-                                    <p class="text-[11px] text-slate-500">
-                                        <?= htmlspecialchars($item['category']) ?>
-                                    </p>
+                <!-- Rekomendasi untukmu: HP 2 kolom, tablet 3, laptop 4 -->
+                <section>
+                    <div class="flex items-center justify-between mb-3.5 lg:mb-5">
+                        <h2 class="text-[17px] lg:text-[22px] font-bold text-slate-900">Rekomendasi untukmu</h2>
+                        <a href="jelajahi.php?category=Semua" class="text-xs lg:text-sm font-semibold text-[#2554E8] hover:underline">
+                            Lihat Semua
+                        </a>
+                    </div>
 
-                                    <div class="flex items-center gap-1 text-[11px] text-slate-500">
-                                        <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z"/>
-                                            <circle cx="12" cy="11" r="2"/>
-                                        </svg>
-                                        <span class="truncate"><?= htmlspecialchars($item['location']) ?></span>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-0.5 md:gap-4 lg:gap-5">
+                        <?php foreach ($recommendations as $item): ?>
+                            <article class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+                                <div class="relative aspect-[4/3] lg:aspect-[19/10] bg-slate-100 overflow-hidden">
+                                    <img
+                                        src="<?= htmlspecialchars($item['image']) ?>"
+                                        alt="<?= htmlspecialchars($item['title']) ?>"
+                                        class="w-full h-full object-cover"
+                                    >
+                                </div>
+
+                                <div class="p-3 lg:p-3.5 flex-1 flex flex-col justify-between gap-0.5">
+                                    <div class="flex flex-col gap-0.5">
+                                        <h3 class="text-[14px] lg:text-xl font-bold text-slate-900 line-clamp-1">
+                                            <?= htmlspecialchars($item['title']) ?>
+                                        </h3>
+                                        <p class="text-[11px] lg:text-base text-slate-500">
+                                            <?= htmlspecialchars($item['category']) ?>
+                                        </p>
+
+                                        <div class="flex items-center gap-1 lg:gap-1.5 text-[11px] lg:text-base text-slate-500">
+                                            <svg class="w-3.5 h-3.5 lg:w-4 lg:h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z"/>
+                                                <circle cx="12" cy="11" r="2"/>
+                                            </svg>
+                                            <span class="truncate"><?= htmlspecialchars($item['location']) ?></span>
+                                        </div>
+
+                                        <p class="text-[11px] lg:text-base text-slate-500 truncate">
+                                            <?= htmlspecialchars($item['condition']) ?>
+                                        </p>
                                     </div>
 
-                                    <p class="text-[11px] text-slate-500 truncate">
-                                        <?= htmlspecialchars($item['condition']) ?>
-                                    </p>
+                                    <div>
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 lg:py-1.5 rounded-full text-[10px] lg:text-[13px] font-semibold bg-emerald-50 text-emerald-600">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                            <?= htmlspecialchars($item['status']) ?>
+                                        </span>
+                                    </div>
                                 </div>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+                </section>
 
-                                <div>
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-600">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                        <?= htmlspecialchars($item['status']) ?>
-                                    </span>
-                                </div>
-                            </div>
-                        </article>
-                    <?php endforeach; ?>
-                </div>
-            </section>
+            </div>
         </main>
 
-        <!-- Bottom Navigation Bar -->
-        <nav class="fixed bottom-0 w-full max-w-[430px] bg-white border-t border-slate-100 px-3 py-2 flex items-center justify-around z-30">
-            <!-- Active Tab: Beranda -->
-            <a href="beranda.php" class="flex flex-col items-center gap-1 text-[#2554E8] py-1 px-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-                <span class="text-[10px] font-semibold">Beranda</span>
-            </a>
-
-            <!-- Tab: Jelajahi -> Mengarah ke /jelajahi.php -->
-            <a href="jelajahi.php" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 py-1 px-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="9"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.5 9.5l-2 5-5 2 2-5 5-2z"/>
-                </svg>
-                <span class="text-[10px] font-medium">Jelajahi</span>
-            </a>
-
-            <a href="#" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 py-1 px-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="9"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8m-4-4h8"/>
-                </svg>
-                <span class="text-[10px] font-medium">Bagikan</span>
-            </a>
-
-            <a href="#" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 py-1 px-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                </svg>
-                <span class="text-[10px] font-medium">Aktivitas</span>
-            </a>
-
-            <a href="#" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 py-1 px-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-                <span class="text-[10px] font-medium">Profil</span>
-            </a>
+        <!-- Bottom Navigation Bar (hanya HP/tablet, disembunyikan di laptop) -->
+        <nav class="fixed inset-x-0 bottom-0 bg-white border-t border-slate-100 px-3 py-2 flex items-center justify-around z-30 lg:hidden">
+            <?php foreach ($navItems as $nav): ?>
+                <a href="<?= $nav['href'] ?>"
+                   class="flex flex-col items-center gap-1 py-1 px-2 <?= $nav['active'] ? 'text-[#2554E8]' : 'text-slate-400 hover:text-slate-600' ?>">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="<?= $nav['active'] ? '2' : '1.8' ?>" viewBox="0 0 24 24">
+                        <?= $nav['paths'] ?>
+                    </svg>
+                    <span class="text-[10px] <?= $nav['active'] ? 'font-semibold' : 'font-medium' ?>"><?= htmlspecialchars($nav['label']) ?></span>
+                </a>
+            <?php endforeach; ?>
         </nav>
 
     </div>
