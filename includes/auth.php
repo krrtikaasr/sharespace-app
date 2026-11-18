@@ -1,37 +1,27 @@
 <?php
-/** Helper login & keamanan form. */
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+if (session_status() === PHP_SESSION_NONE) session_start();
+// require_once __DIR__ . '/../config/database.php';
+
+function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
+
+function csrf_field() {
+  if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(16));
+  return '<input type="hidden" name="csrf" value="' . $_SESSION['csrf'] . '">';
+}
+function csrf_ok() {
+  return isset($_POST['csrf'], $_SESSION['csrf']) && hash_equals($_SESSION['csrf'], $_POST['csrf']);
 }
 
-function current_user_id(): ?int {
-    return isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+// tujuan setelah login, sesuai role
+function arah_role($role) { return $role === 'admin' ? 'admin/beranda-admin.php' : 'beranda.php'; }
+
+// pakai di halaman yang wajib login
+function wajib_login($ke = 'masuk.php') {
+  if (empty($_SESSION['user'])) { header("Location: $ke"); exit; }
+}
+// pakai di halaman admin (taruh di folder admin/)
+function wajib_admin() {
+  wajib_login('../masuk.php');
+  if ($_SESSION['user']['role'] !== 'admin') { header('Location: ../beranda.php'); exit; }
 }
 
-function require_login(): int {
-    $id = current_user_id();
-    if (!$id) {
-        header('Location: login.php');
-        exit;
-    }
-    return $id;
-}
-
-function csrf_token(): string {
-    if (empty($_SESSION['csrf'])) {
-        $_SESSION['csrf'] = bin2hex(random_bytes(16));
-    }
-    return $_SESSION['csrf'];
-}
-
-function csrf_check(): void {
-    if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
-        http_response_code(419);
-        exit('Sesi formulir kedaluwarsa. Muat ulang halaman lalu coba lagi.');
-    }
-}
-
-function tambah_notifikasi(PDO $pdo, int $userId, string $judul, ?string $deskripsi = null, ?string $link = null): void {
-    $pdo->prepare('INSERT INTO notifications (user_id, judul, deskripsi, link) VALUES (?, ?, ?, ?)')
-        ->execute([$userId, $judul, $deskripsi, $link]);
-}

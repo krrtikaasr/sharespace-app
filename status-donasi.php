@@ -16,7 +16,7 @@ if ($pdo && $userId) {
 
         // Tab "Permintaan Saya": permintaan dari pengguna lain terhadap donasi milikku
         $stmt = $pdo->prepare(
-            "SELECT r.id, r.donation_id, r.status AS status_req, r.jarak_km, r.created_at,
+            "SELECT r.id, r.donation_id, r.status AS status_req, r.created_at,
                     d.nama_barang, d.foto, u.id AS id_peminta, u.nama AS nama_peminta
                FROM requests r
                JOIN donations d ON d.id = r.donation_id
