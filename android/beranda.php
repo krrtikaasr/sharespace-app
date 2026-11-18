@@ -198,7 +198,7 @@ $renderBrand = function ($large = false) { ?>
         </header>
 
         <!-- Main Content -->
-        <main class="px-5 pt-4 pb-24 lg:px-12 lg:pt-24 lg:pb-12 flex-1">
+        <main class="px-5 pt-4 pb-24 lg:px-12 lg:pt-4 lg:pb-12 flex-1">
             <div class="w-full max-w-5xl mx-auto">
 
                 <!-- Greeting Section -->
