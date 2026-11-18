@@ -1,6 +1,12 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
-// require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/database.php';
+
+if (isset($pdo) && !isset($db)) {
+    $db = $pdo;
+} elseif (isset($conn) && !isset($db)) {
+    $db = $conn;
+}
 
 function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 

@@ -28,7 +28,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       // role selalu 'user'. Admin diset manual lewat database.
       $ins = $db->prepare("INSERT INTO users (nama, email, password, role) VALUES (?, ?, ?, 'user')");
       $ins->execute([$nama, $email, password_hash($pass, PASSWORD_DEFAULT)]);
-      header('Location: masuk.php?daftar=1');
+      // Ambil ID dari user yang baru saja mendaftar
+      $newUserId = $db->lastInsertId();
+
+      // Langsung buat session login agar otomatis masuk
+      $_SESSION['user'] = [
+          'id' => $newUserId,
+          'nama' => $nama,
+          'role' => 'user'
+      ];
+
+      // Arahkan langsung ke beranda/landing page sesuai fungsi role
+      header('Location: masuk.php' . arah_role('user'));
       exit;
     }
   }

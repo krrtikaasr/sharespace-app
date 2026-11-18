@@ -4,7 +4,7 @@ require_once __DIR__ . '/config/pdo.php';
 require_once __DIR__ . '/includes/helpers.php';
 require_once __DIR__ . '/includes/auth.php';
 
-$userId     = current_user_id();
+$userId     = $_SESSION['user_id'] ?? null;
 $donasi     = [];
 $permintaan = [];
 $dbError    = null;

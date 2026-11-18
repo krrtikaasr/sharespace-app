@@ -2,9 +2,9 @@
 $host = "localhost";
 $user = "root";
 $pass = "admin147*Kar";
-$db   = "sharespace_db";
+$db_name   = "sharespace_db";
 
-$conn = mysqli_connect($host, $user, $pass, $db);
+$conn = mysqli_connect($host, $user, $pass, $db_name);
 
 if (!$conn) {
     die("Koneksi database gagal: " . mysqli_connect_error());
@@ -12,7 +12,7 @@ if (!$conn) {
 
 // 2. Koneksi PDO (dipakai masuk.php & daftar.php)
 try {
-    $db = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass, [
+    $db = new PDO("mysql:host=$host;dbname=$db_name;charset=utf8mb4", $user, $pass, [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);

@@ -8,7 +8,7 @@
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/auth.php';
 
-$userId       = current_user_id();
+$userId       = $_SESSION['user_id'] ?? null;
 $judulHalaman = $judulHalaman ?? 'Status & Riwayat';
 $subjudul     = $subjudul ?? 'Pantau donasi dan permintaan barangmu';
 $kembaliHref  = $kembaliHref ?? null;
