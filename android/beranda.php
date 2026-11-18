@@ -1,3 +1,4 @@
+
 <?php
 $username = "Username";
 $initials = "AN";
@@ -36,8 +37,7 @@ $quickCategories = [
     ],
 ];
 
-// Rekomendasi untukmu (Path gambar naik 1 folder ke ../assets/)
-// Tambahkan item di sini: di laptop tampil 3 kolom, di HP 2 kolom.
+// Rekomendasi untukmu
 $recommendations = [
     [
         'id' => 1,
@@ -68,7 +68,7 @@ $recommendations = [
     ],
 ];
 
-// Menu navigasi: dipakai bersama oleh bottom nav (HP) dan sidebar (laptop)
+// Menu navigasi
 $navItems = [
     [
         'label' => 'Beranda',
@@ -102,15 +102,12 @@ $navItems = [
     ],
 ];
 
-// Logo ShareSpace (dipakai di header HP dan sidebar laptop)
+// Logo ShareSpace
 $renderBrand = function ($large = false) { ?>
     <a href="beranda.php" class="flex items-center <?= $large ? 'gap-3' : 'gap-2.5' ?>">
-        <!-- App Icon (Tangan Menadah Hati) -->
         <div class="<?= $large ? 'w-[52px] h-[52px] rounded-[14px]' : 'w-9 h-9 rounded-xl' ?> bg-[#2554E8] flex items-center justify-center shadow-xs">
             <svg class="<?= $large ? 'w-7 h-7' : 'w-5 h-5' ?> text-white" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                <!-- Ikon Hati di Atas Tangan -->
                 <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" transform="translate(3.5, -1) scale(0.65)" />
-                <!-- Ikon Telapak Tangan -->
                 <path d="M2 14.5l3.5 3.5" />
                 <path d="M4.5 17l3.5-3.5a2 2 0 0 1 2.8 0l1.2 1.2a2 2 0 0 0 2.8 0l3.7-3.7a1.8 1.8 0 0 1 2.5 2.5l-5.3 5.3a4 4 0 0 1-2.8 1.2H7.5" />
                 <path d="M9.5 15.5h3" />
@@ -129,17 +126,14 @@ $renderBrand = function ($large = false) { ?>
     <title>ShareSpace - Beranda</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
-<!--
-    HP     (< 1024px): satu kolom + bottom navigation (desain asli)
-    Laptop (>= 1024px): sidebar kiri, sapaan di tengah, cari + tombol, rekomendasi 3 kolom
-    Layar lebar (>= 1280px): kategori berbentuk ikon + teks sejajar
--->
+
 <body class="min-h-screen bg-white lg:flex">
 
     <!-- Sidebar (hanya laptop) -->
@@ -178,19 +172,42 @@ $renderBrand = function ($large = false) { ?>
 
         <!-- Top App Bar -->
         <header class="px-5 pt-6 pb-2 lg:px-7 lg:pt-6 flex items-center justify-between bg-white lg:bg-transparent">
-            <!-- Logo: tampil di HP saja (di laptop sudah ada di sidebar) -->
+
+            <!-- Logo: tampil di HP saja -->
             <div class="lg:hidden">
                 <?php $renderBrand(); ?>
             </div>
 
             <div class="flex items-center gap-2.5 lg:ml-auto">
-                <button type="button" class="relative w-10 h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors" aria-label="Notifikasi">
+
+                <!-- Tombol notifikasi desktop: membuka drawer -->
+                <button
+                    type="button"
+                    onclick="openNotificationDrawer()"
+                    class="hidden lg:flex relative w-10 h-10 rounded-full border border-slate-200 bg-white items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors"
+                    aria-label="Buka notifikasi"
+                >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                     </svg>
+
                     <span class="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-[#2554E8] ring-2 ring-white"></span>
                 </button>
 
+                <!-- Tombol notifikasi mobile: menuju halaman notifikasi -->
+                <a
+                    href="notifikasi.php"
+                    class="lg:hidden relative w-10 h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors"
+                    aria-label="Buka notifikasi"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+
+                    <span class="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-[#2554E8] ring-2 ring-white"></span>
+                </a>
+
+                <!-- Profil mobile -->
                 <a href="#" class="lg:hidden w-10 h-10 rounded-full bg-[#EEF2FF] text-[#2554E8] text-xs font-bold flex items-center justify-center hover:bg-blue-100 transition-colors">
                     <?= htmlspecialchars($initials) ?>
                 </a>
@@ -206,33 +223,38 @@ $renderBrand = function ($large = false) { ?>
                     <h1 class="text-[28px] lg:text-[36px] font-bold text-slate-900 tracking-tight leading-tight">
                         Halo, <?= htmlspecialchars($username) ?>!
                     </h1>
+
                     <p class="text-[13px] lg:text-base text-slate-500 mt-1">
                         Beri barang tak terpakai kehidupan baru.
                     </p>
                 </section>
 
-                <!-- Search Bar -> Diarahkan ke jelajahi.php -->
+                <!-- Search Bar -->
                 <section class="mb-6 lg:mb-10 lg:max-w-[955px] lg:mx-auto flex gap-3">
                     <a href="jelajahi.php" class="flex items-center gap-3 flex-1 min-w-0 lg:h-14 bg-white border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-400 shadow-2xs hover:border-[#2554E8] transition-colors">
                         <svg class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18a7.5 7.5 0 006.15-3.35z" />
                         </svg>
+
                         <span class="text-[13px] lg:text-sm truncate">Cari barang yang kamu butuhkan...</span>
                     </a>
+
                     <!-- Tombol cari (hanya laptop) -->
                     <a href="jelajahi.php" class="hidden lg:flex items-center justify-center lg:h-14 px-8 rounded-2xl bg-[#2554E8] hover:bg-[#1f47c9] text-white text-[15px] font-semibold transition-colors">
                         Cari barang
                     </a>
                 </section>
 
-                <!-- Category Grid: HP 3 kolom, tablet/laptop 6 kolom -->
+                <!-- Category Grid -->
                 <section class="grid grid-cols-3 md:grid-cols-6 gap-3 lg:gap-4 xl:gap-6 mb-6 lg:mb-10">
                     <?php foreach ($quickCategories as $cat): ?>
                         <a href="jelajahi.php?category=<?= urlencode($cat['target_category']) ?>"
                            class="bg-[#F3F6FD] hover:bg-[#E8EEFC] active:scale-95 rounded-2xl py-4 px-2 flex flex-col xl:flex-row items-center justify-center gap-2 xl:gap-3 xl:h-20 transition-all">
+
                             <div class="w-8 h-8 flex items-center justify-center">
                                 <?= $cat['icon'] ?>
                             </div>
+
                             <span class="text-xs xl:text-sm font-medium xl:font-semibold text-slate-800">
                                 <?= htmlspecialchars($cat['label']) ?>
                             </span>
@@ -240,10 +262,13 @@ $renderBrand = function ($large = false) { ?>
                     <?php endforeach; ?>
                 </section>
 
-                <!-- Rekomendasi untukmu: HP 2 kolom, tablet 3, laptop 4 -->
+                <!-- Rekomendasi untukmu -->
                 <section>
                     <div class="flex items-center justify-between mb-3.5 lg:mb-5">
-                        <h2 class="text-[17px] lg:text-[22px] font-bold text-slate-900">Rekomendasi untukmu</h2>
+                        <h2 class="text-[17px] lg:text-[22px] font-bold text-slate-900">
+                            Rekomendasi untukmu
+                        </h2>
+
                         <a href="jelajahi.php?category=Semua" class="text-xs lg:text-sm font-semibold text-[#2554E8] hover:underline">
                             Lihat Semua
                         </a>
@@ -252,6 +277,7 @@ $renderBrand = function ($large = false) { ?>
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-0.5 md:gap-4 lg:gap-5">
                         <?php foreach ($recommendations as $item): ?>
                             <article class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+
                                 <div class="relative aspect-[4/3] lg:aspect-[19/10] bg-slate-100 overflow-hidden">
                                     <img
                                         src="<?= htmlspecialchars($item['image']) ?>"
@@ -265,6 +291,7 @@ $renderBrand = function ($large = false) { ?>
                                         <h3 class="text-[14px] lg:text-xl font-bold text-slate-900 line-clamp-1">
                                             <?= htmlspecialchars($item['title']) ?>
                                         </h3>
+
                                         <p class="text-[11px] lg:text-base text-slate-500">
                                             <?= htmlspecialchars($item['category']) ?>
                                         </p>
@@ -274,7 +301,10 @@ $renderBrand = function ($large = false) { ?>
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z"/>
                                                 <circle cx="12" cy="11" r="2"/>
                                             </svg>
-                                            <span class="truncate"><?= htmlspecialchars($item['location']) ?></span>
+
+                                            <span class="truncate">
+                                                <?= htmlspecialchars($item['location']) ?>
+                                            </span>
                                         </div>
 
                                         <p class="text-[11px] lg:text-base text-slate-500 truncate">
@@ -297,25 +327,121 @@ $renderBrand = function ($large = false) { ?>
             </div>
         </main>
 
-        <!-- Bottom Navigation Bar (hanya HP/tablet, disembunyikan di laptop) -->
+        <!-- Bottom Navigation Bar -->
         <nav class="fixed inset-x-0 bottom-0 bg-white border-t border-slate-100 px-3 py-2 flex items-center justify-around z-30 lg:hidden">
             <?php foreach ($navItems as $nav): ?>
                 <a href="<?= $nav['href'] ?>"
                    class="flex flex-col items-center gap-1 py-1 px-2 <?= $nav['active'] ? 'text-[#2554E8]' : 'text-slate-400 hover:text-slate-600' ?>">
+
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="<?= $nav['active'] ? '2' : '1.8' ?>" viewBox="0 0 24 24">
                         <?= $nav['paths'] ?>
                     </svg>
-                    <span class="text-[10px] <?= $nav['active'] ? 'font-semibold' : 'font-medium' ?>"><?= htmlspecialchars($nav['label']) ?></span>
+
+                    <span class="text-[10px] <?= $nav['active'] ? 'font-semibold' : 'font-medium' ?>">
+                        <?= htmlspecialchars($nav['label']) ?>
+                    </span>
                 </a>
             <?php endforeach; ?>
         </nav>
 
     </div>
 
+    <!-- ========================================= -->
+    <!-- DRAWER NOTIFIKASI KHUSUS DESKTOP / LAPTOP -->
+    <!-- ========================================= -->
+
+    <div id="notificationOverlay" class="fixed inset-0 z-50 hidden" aria-hidden="true">
+
+        <!-- Background gelap -->
+        <button
+            type="button"
+            onclick="closeNotificationDrawer()"
+            class="absolute inset-0 w-full h-full bg-slate-950/60 opacity-0 transition-opacity duration-300"
+            aria-label="Tutup notifikasi"
+        ></button>
+
+        <!-- Panel drawer dari kanan -->
+        <aside
+            id="notificationDrawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Notifikasi"
+            class="absolute top-0 right-0 h-full w-full max-w-[480px] bg-white shadow-2xl translate-x-full transition-transform duration-300 ease-out"
+        >
+            <iframe
+                src="notifikasi.php?drawer=1"
+                title="Notifikasi"
+                class="w-full h-full border-0"
+            ></iframe>
+        </aside>
+    </div>
+
     <script>
+        const notificationOverlay = document.getElementById('notificationOverlay');
+        const notificationBackdrop = notificationOverlay?.querySelector('button');
+        const notificationDrawer = document.getElementById('notificationDrawer');
+
+        // Membuka drawer notifikasi
+        function openNotificationDrawer() {
+            if (!notificationOverlay) return;
+
+            notificationOverlay.classList.remove('hidden');
+            notificationOverlay.setAttribute('aria-hidden', 'false');
+
+            // Mencegah halaman utama ikut discroll
+            document.body.classList.add('overflow-hidden');
+
+            requestAnimationFrame(() => {
+                notificationBackdrop.classList.remove('opacity-0');
+                notificationBackdrop.classList.add('opacity-100');
+
+                notificationDrawer.classList.remove('translate-x-full');
+            });
+        }
+
+        // Menutup drawer notifikasi
+        function closeNotificationDrawer() {
+            if (!notificationOverlay) return;
+
+            notificationBackdrop.classList.remove('opacity-100');
+            notificationBackdrop.classList.add('opacity-0');
+
+            notificationDrawer.classList.add('translate-x-full');
+
+            notificationOverlay.setAttribute('aria-hidden', 'true');
+
+            // Sembunyikan overlay setelah animasi selesai
+            setTimeout(() => {
+                notificationOverlay.classList.add('hidden');
+
+                // Mengaktifkan kembali scroll halaman utama
+                document.body.classList.remove('overflow-hidden');
+            }, 300);
+        }
+
+        // Menutup drawer menggunakan tombol Escape
+        document.addEventListener('keydown', (event) => {
+            if (
+                event.key === 'Escape' &&
+                notificationOverlay &&
+                !notificationOverlay.classList.contains('hidden')
+            ) {
+                closeNotificationDrawer();
+            }
+        });
+
+        // Menerima perintah penutupan dari notifikasi.php
+        window.addEventListener('message', (event) => {
+            if (event.data === 'closeNotifications') {
+                closeNotificationDrawer();
+            }
+        });
+
+        // Fungsi toggle like
         function toggleLike(btn) {
             const svg = btn.querySelector('svg');
             const isLiked = svg.classList.contains('text-rose-500');
+
             if (isLiked) {
                 btn.innerHTML = `<svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`;
             } else {
@@ -323,5 +449,6 @@ $renderBrand = function ($large = false) { ?>
             }
         }
     </script>
+
 </body>
 </html>
