@@ -3,6 +3,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 require 'includes/auth.php';
+require 'config/database.php';
 
 if (!empty($_SESSION['user'])) {
     header('Location: ' . arah_role($_SESSION['user']['role']));
@@ -31,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($cek->fetch()) {
       $errors[] = 'Email sudah terdaftar.';
     } else {
-      $ins = $db->prepare("INSERT INTO users (nama, email, password, role) VALUES (?, ?, ?, 'user')");
+      $ins = $db->prepare("INSERT INTO users (nama, email, password, role, no_hp) VALUES (?, ?, ?, 'user', '')");
       $ins->execute([$nama, $email, password_hash($pass, PASSWORD_DEFAULT)]);
       $newUserId = (int)$db->lastInsertId();
 
