@@ -146,7 +146,7 @@ section { padding-block:64px; }
           <a href="masuk.php" class="btn btn--outline">Masuk</a>
         </div>
       </div>
-      <img class="hero__img" src="assets/img/hero.jpg" alt="Dua orang saling berbagi kotak berisi bahan makanan">
+      <img class="hero__img" src="assets/img/hero.png" alt="Dua orang saling berbagi kotak berisi bahan makanan">
     </section>
 
     <!-- Halaman 2: Kategori -->
