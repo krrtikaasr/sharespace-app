@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/config/database.php';
-
 $kategori = [
   ['Makanan',    '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2M7 2v20M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3v7"/>'],
   ['Pakaian',    '<path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z"/>'],
@@ -10,19 +8,9 @@ $kategori = [
   ['Lainnya',    '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>'],
 ];
 
-// Ambil statistik nyata dari database (fallback ke angka default jika tabel masih kosong)
-$totalBarang = 100;
-$donasiHariIni = 100;
-try {
-    $qTotal = $db->query("SELECT COUNT(*) FROM donations")->fetchColumn();
-    $qHari  = $db->query("SELECT COUNT(*) FROM donations WHERE DATE(created_at) = CURDATE()")->fetchColumn();
-    if ($qTotal > 0) $totalBarang = (int)$qTotal;
-    if ($qHari > 0)  $donasiHariIni = (int)$qHari;
-} catch (Throwable $e) {}
-
 $dampak = [
-  ['angka' => (string)$totalBarang,   'label' => 'Barang telah dibagikan kembali'],
-  ['angka' => (string)$donasiHariIni, 'label' => 'Donasi dalam sehari'],
+  ['angka' => '100', 'label' => 'Barang telah dibagikan kembali'],
+  ['angka' => '100', 'label' => 'Donasi dalam sehari'],
 ];
 
 $langkah = [
@@ -146,8 +134,9 @@ section { padding-block:64px; }
     </div>
   </header>
 
-  <!-- ==================== BAGIAN BERANDA ==================== -->
+  <!-- ==================== BAGIAN BERANDA (3 HALAMAN) ==================== -->
   <div id="beranda" class="grup-halaman" data-nav="beranda">
+    <!-- Halaman 1: Hero -->
     <section class="container hero">
       <div class="hero__text">
         <h1>Dapat barang, <span class="biru">bersih limbah</span></h1>
@@ -157,14 +146,15 @@ section { padding-block:64px; }
           <a href="masuk.php" class="btn btn--outline">Masuk</a>
         </div>
       </div>
-      <img class="hero__img" src="assets/img/hero.jpg" alt="Dua orang saling berbagi kotak berisi bahan makanan">
+      <img class="hero__img" src="assets/img/hero.png" alt="Dua orang saling berbagi kotak berisi bahan makanan">
     </section>
 
+    <!-- Halaman 2: Kategori -->
     <section class="container kategori">
       <h2 class="judul center"><span class="biru">Bagikan</span> dan <span class="biru">Gunakan</span> Kembali!</h2>
       <div class="kategori__grid">
         <?php foreach ($kategori as [$nama, $svg]): ?>
-          <a class="kartu" href="jelajahi.php?category=<?= urlencode($nama) ?>">
+          <a class="kartu" href="cari.php?kategori=<?= urlencode($nama) ?>">
             <span class="kartu__ikon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><?= $svg ?></svg>
             </span>
@@ -174,6 +164,7 @@ section { padding-block:64px; }
       </div>
     </section>
 
+    <!-- Halaman 3: Dampak Bagi Sekitar -->
     <section class="container dampak">
       <h2 class="judul"><span class="biru">DAMPAK</span> BAGI SEKITAR</h2>
       <div class="dampak__grid">
@@ -187,7 +178,7 @@ section { padding-block:64px; }
     </section>
   </div>
 
-  <!-- ==================== BAGIAN TENTANG ==================== -->
+  <!-- ==================== BAGIAN TENTANG (1 HALAMAN) ==================== -->
   <section id="tentang" class="container tentang grup-halaman" data-nav="tentang">
     <div class="tentang__grid">
       <div class="tentang__teks">
@@ -208,7 +199,7 @@ section { padding-block:64px; }
     </div>
   </section>
 
-  <!-- ==================== BAGIAN DONASI / MULAI ==================== -->
+  <!-- ==================== BAGIAN DONASI / MULAI (1 HALAMAN) ==================== -->
   <section id="donasi" class="container cta grup-halaman" data-nav="donasi">
     <h2 class="judul center">MULAI GUNAKAN <span class="biru">SHARESPACE</span> DAN RASAKAN <span class="biru">MANFAATNYA</span></h2>
     <div class="cta__tombol">
