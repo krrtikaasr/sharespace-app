@@ -1,7 +1,10 @@
 <?php
 require 'includes/auth.php';
 
-if (!empty($_SESSION['user'])) { header('Location: ' . arah_role($_SESSION['user']['role'])); exit; }
+if (!empty($_SESSION['user'])) {
+    header('Location: ' . arah_role($_SESSION['user']['role']));
+    exit;
+}
 
 $errors = [];
 $nama = $email = '';
@@ -25,21 +28,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($cek->fetch()) {
       $errors[] = 'Email sudah terdaftar.';
     } else {
-      // role selalu 'user'. Admin diset manual lewat database.
       $ins = $db->prepare("INSERT INTO users (nama, email, password, role) VALUES (?, ?, ?, 'user')");
       $ins->execute([$nama, $email, password_hash($pass, PASSWORD_DEFAULT)]);
-      // Ambil ID dari user yang baru saja mendaftar
-      $newUserId = $db->lastInsertId();
+      $newUserId = (int)$db->lastInsertId();
 
-      // Langsung buat session login agar otomatis masuk
+      session_regenerate_id(true);
       $_SESSION['user'] = [
-          'id' => $newUserId,
+          'id'   => $newUserId,
           'nama' => $nama,
           'role' => 'user'
       ];
 
-      // Arahkan langsung ke beranda/landing page sesuai fungsi role
-      header('Location: masuk.php' . arah_role('user'));
+      header('Location: ' . arah_role('user'));
       exit;
     }
   }

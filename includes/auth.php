@@ -1,33 +1,40 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../config/database.php';
 
-if (isset($pdo) && !isset($db)) {
-    $db = $pdo;
-} elseif (isset($conn) && !isset($db)) {
-    $db = $conn;
+function e($teks): string {
+    return htmlspecialchars((string)$teks, ENT_QUOTES, 'UTF-8');
 }
 
-function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
-
-function csrf_field() {
-  if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(16));
-  return '<input type="hidden" name="csrf" value="' . $_SESSION['csrf'] . '">';
-}
-function csrf_ok() {
-  return isset($_POST['csrf'], $_SESSION['csrf']) && hash_equals($_SESSION['csrf'], $_POST['csrf']);
+function csrf_token(): string {
+    if (empty($_SESSION['csrf'])) {
+        $_SESSION['csrf'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf'];
 }
 
-// tujuan setelah login, sesuai role
-function arah_role($role) { return $role === 'admin' ? 'admin/beranda-admin.php' : 'beranda.php'; }
-
-// pakai di halaman yang wajib login
-function wajib_login($ke = 'masuk.php') {
-  if (empty($_SESSION['user'])) { header("Location: $ke"); exit; }
-}
-// pakai di halaman admin (taruh di folder admin/)
-function wajib_admin() {
-  wajib_login('../masuk.php');
-  if ($_SESSION['user']['role'] !== 'admin') { header('Location: ../beranda.php'); exit; }
+function csrf_field(): string {
+    return '<input type="hidden" name="csrf" value="' . e(csrf_token()) . '">';
 }
 
+function csrf_ok(): bool {
+    return !empty($_POST['csrf']) && hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf']);
+}
+
+function arah_role(string $role): string {
+    return $role === 'admin' ? 'beranda-admin.php' : 'beranda.php';
+}
+
+function current_user_id(): ?int {
+    return isset($_SESSION['user']['id']) ? (int)$_SESSION['user']['id'] : null;
+}
+
+function wajib_login(): void {
+    if (empty($_SESSION['user'])) {
+        header('Location: masuk.php');
+        exit;
+    }
+}

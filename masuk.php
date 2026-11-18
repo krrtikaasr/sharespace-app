@@ -1,8 +1,10 @@
 <?php
 require 'includes/auth.php';
 
-// sudah login? langsung arahkan sesuai role
-if (!empty($_SESSION['user'])) { header('Location: ' . arah_role($_SESSION['user']['role'])); exit; }
+if (!empty($_SESSION['user'])) {
+    header('Location: ' . arah_role($_SESSION['user']['role']));
+    exit;
+}
 
 $error = '';
 $email = '';
@@ -20,11 +22,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($u && password_verify($pass, $u['password'])) {
       session_regenerate_id(true);
-      $_SESSION['user'] = ['id' => $u['id'], 'nama' => $u['nama'], 'role' => $u['role']];
-      if (!empty($_POST['ingat'])) { // ingat saya: cookie sesi 30 hari
+      $_SESSION['user'] = [
+          'id'   => (int)$u['id'],
+          'nama' => $u['nama'],
+          'role' => $u['role']
+      ];
+      if (!empty($_POST['ingat'])) {
         setcookie(session_name(), session_id(), time() + 60*60*24*30, '/', '', false, true);
       }
-      header('Location: ' . arah_role($u['role'])); // admin -> admin/beranda.php, user -> beranda.php
+      header('Location: ' . arah_role($u['role']));
       exit;
     }
     $error = 'Email atau kata sandi salah.';
@@ -45,10 +51,10 @@ $svg_arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke
   <div class="auth__kanan">
     <form class="form" method="post" novalidate>
       <span class="brand__logo" style="display:inline-flex;align-items:center;justify-content:center;color:#fff;">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M11 14h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16"/><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 15 6 6"/><path d="M19.5 8.5c.7-.7 1.5-1.6 1.5-2.7A2.73 2.73 0 0 0 16 4a2.78 2.78 0 0 0-5 1.8c0 1.2.8 2 1.5 2.8L16 12Z"/>
-  </svg>
-</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11 14h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16"/><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 15 6 6"/><path d="M19.5 8.5c.7-.7 1.5-1.6 1.5-2.7A2.73 2.73 0 0 0 16 4a2.78 2.78 0 0 0-5 1.8c0 1.2.8 2 1.5 2.8L16 12Z"/>
+        </svg>
+      </span>
       <h2>Masuk</h2>
       <p class="sub">Selamat datang kembali. Masuk untuk melanjutkan.</p>
 
