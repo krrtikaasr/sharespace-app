@@ -1,4 +1,5 @@
 <?php
+
 require 'includes/auth.php';
 
 if (!empty($_SESSION['user'])) {
